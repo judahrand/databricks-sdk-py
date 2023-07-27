@@ -33,22 +33,20 @@ try:
         _globals[var] = userNamespaceGlobals[var]
     is_local_implementation = False
 except ImportError:
-    from typing import Type, cast
-
+    from . import protocol
     # OSS implementation
     is_local_implementation = True
 
+    dbutils: protocol.dbutils
     try:
-        from . import stub
         from .stub import *
-        dbutils_type = Type[stub.dbutils]
     except (ImportError, NameError):
         from databricks.sdk.dbutils import RemoteDbUtils
 
         # this assumes that all environment variables are set
         dbutils = RemoteDbUtils()
-        dbutils_type = RemoteDbUtils
 
-    dbutils = cast(dbutils_type, dbutils)
+    import typing
+    dbutils = typing.cast(protocol.dbutils, dbutils)
 
 __all__ = ['dbutils'] if is_local_implementation else dbruntime_objects
